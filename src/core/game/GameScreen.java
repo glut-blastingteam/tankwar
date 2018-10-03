@@ -5,7 +5,6 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import core.entity.TankEntity;
 import core.util.MapGenerator;
@@ -18,24 +17,23 @@ public class GameScreen implements Screen {
     private OrthographicCamera camera;
     private SpriteBatch batch;
 
-    private ShapeRenderer renderer;
-    private Stage stage;
+    private Stage mapComponentStage, bulletStage, tankStage;
     private TankEntity playerTank;
-    //private Bullet bullet;
 
     public GameScreen(final TankWarGame game){
         this.game = game;
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 1200, 900);
+        camera.setToOrtho(false, Config.MAP_WIDTH, Config.MAP_HEIGHT);
 
         batch = new SpriteBatch();
         MusicPlayer.playGameStartMusic();
 
-        //renderer = new ShapeRenderer();
-        stage = new Stage();
-        playerTank = new TankEntity(stage, camera.viewportHeight, camera.viewportWidth);
-        stage.addActor(playerTank);
-        MapGenerator.generateMap1(stage, camera.viewportHeight, camera.viewportWidth);
+        mapComponentStage = new Stage();
+        bulletStage = new Stage();
+        tankStage = new Stage();
+        playerTank = new TankEntity(mapComponentStage, bulletStage);
+        tankStage.addActor(playerTank);
+        MapGenerator.generateMap1(mapComponentStage, Config.MAP_WIDTH, Config.MAP_HEIGHT);
     }
 
     @Override
@@ -44,40 +42,13 @@ public class GameScreen implements Screen {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
-        stage.act();
-        stage.draw();
-
+        mapComponentStage.act();
+        mapComponentStage.draw();
+        bulletStage.act();
+        bulletStage.draw();
+        tankStage.act();
+        tankStage.draw();
     }
-
-    /*private void renderBullet(){
-        //发射子弹逻辑
-        Bullet bullet = new Bullet(new Vector2(player.x,player.y));
-        bullet.update(Gdx.graphics.getDeltaTime());
-
-        renderer.begin(ShapeRenderer.ShapeType.Filled);
-        renderer.setColor(255f, 255f, 255f, 0.0f);
-        renderer.circle(bullet.position.x, bullet.position.y, bullet.radius);
-
-        if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){
-
-            switch (direction){
-                case DIRECTION_UP:
-                    bullet.shootToward(player.x,camera.viewportHeight);
-                    break;
-                case DIRECTION_DOWN:
-                    bullet.shootToward(player.x,0);
-                    break;
-                case DIRECTION_LEFT:
-                    bullet.shootToward(0,player.y);
-                    break;
-                case DIRECTION_RIGHT:
-                    bullet.shootToward(camera.viewportWidth,player.y);
-                    break;
-            }
-        }
-        renderer.end();
-    }*/
-
 
     @Override
     public void show() {
@@ -104,7 +75,6 @@ public class GameScreen implements Screen {
         batch.dispose();
         MusicPlayer.dispose();
         playerTank.dispose();
-        renderer.dispose();
     }
 
 }

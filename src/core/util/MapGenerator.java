@@ -4,7 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import core.entity.BaseEntity;
 
 public class MapGenerator {
-    public static void generateMap1(Stage stage, float height, float width) {
+    public static void generateMap1(Stage stage, float width, float height) {
         for (int i = 200; i < height - 200; i += 100) {
             for (int k = 0; k < width; k += 100) {
                 stage.addActor(new BaseEntity("invariant/walls.gif", k, i));

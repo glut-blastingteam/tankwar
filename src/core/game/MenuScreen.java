@@ -1,39 +1,58 @@
 package core.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class MenuScreen implements Screen {
     private final TankWarGame game;
     private OrthographicCamera camera;
+    private Stage stage;
+    private Button startButton;
 
     public MenuScreen(final TankWarGame game){
         this.game = game;
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, Config.MAP_WIDTH, Config.MAP_HEIGHT);
+        stage = new Stage();
+        Gdx.input.setInputProcessor(stage);
+        //Button.ButtonStyle style = new Button.ButtonStyle();
+        startButton = new Button();
+        startButton.setPosition(Config.MAP_WIDTH / 2, Config.MAP_HEIGHT / 2 - 40);
+        stage.addActor(startButton);
+        startButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.setScreen(new GameScreen(game));
+                dispose();
+            }
+        });
+        System.out.println("done");
+    }
+
+
+    @Override
+    public void render(float v) {
+        System.out.println("before");
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        camera.update();
+        stage.act();
+        stage.draw();
+
+    }
+
+    @Override
+    public void dispose() {
+        stage.dispose();
     }
 
     @Override
     public void show() {
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, 1200, 900);
-    }
-
-    @Override
-    public void render(float v) {
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        camera.update();
-        game.batch.setProjectionMatrix(camera.combined);
-
-        game.batch.begin();
-        game.font.draw(game.batch, "Welcome to play tank war", camera.viewportWidth/2, camera.viewportHeight/2);
-        game.batch.end();
-        if (Gdx.input.isKeyPressed(Input.Keys.ANY_KEY)) {
-            game.setScreen(new GameScreen(game));
-            dispose();
-        }
     }
 
     @Override
@@ -53,11 +72,6 @@ public class MenuScreen implements Screen {
 
     @Override
     public void hide() {
-
-    }
-
-    @Override
-    public void dispose() {
 
     }
 }

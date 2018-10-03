@@ -23,6 +23,7 @@ public class BaseEntity extends Actor {
     @Override
     public void act(float delta) {
         super.act(delta);
+
     }
 
     public int getTextureHeight() {
