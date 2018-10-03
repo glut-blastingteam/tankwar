@@ -6,8 +6,9 @@
 ![](snapshot/1.png)
 
 # TODO
-1. 游戏欢迎界面
-2. 更多游戏场景
++ 游戏欢迎界面
++ 更多游戏场景
++ 资源释放
 
 # 文档
 libgdx: **https://github.com/libgdx/libgdx/wiki**

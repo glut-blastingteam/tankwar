@@ -1,4 +1,4 @@
-package core.game;
+package core.entity;
 
 import com.badlogic.gdx.math.Vector2;
 
@@ -16,5 +16,9 @@ class Bullet {
     public void update(float deltaTime) {
         position.add(velocity.x * deltaTime, velocity.y * deltaTime);
         //velocity.scl(1 - (0.98f * deltaTime));
+    }
+
+    public Bullet(Vector2 position) {
+        this.position = position;
     }
 }

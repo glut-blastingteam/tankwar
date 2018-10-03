@@ -2,7 +2,7 @@ package desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import core.TankWarGame;
+import core.game.TankWarGame;
 
 public class DesktopLauncher {
     public static void main(String[] arg) {
