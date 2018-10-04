@@ -18,19 +18,18 @@ class BulletEntity extends Actor {
     }
 
     void update(float deltaTime) {
-        System.out.println(position.x + "--" + position.y);
         switch (direction) {
             case DIRECTION_UP:
-                position.set(target.x, position.y + 10000 * deltaTime);
+                position.set(target.x, position.y + 80 * deltaTime);
                 break;
             case DIRECTION_DOWN:
-                position.set(target.x, -100 * deltaTime);
+                position.set(target.x, position.y - 80 * deltaTime);
                 break;
             case DIRECTION_LEFT:
-                position.set(-100 * deltaTime, target.y);
+                position.set(position.x - 80 * deltaTime, target.y);
                 break;
             case DIRECTION_RIGHT:
-                position.set(100 * deltaTime, target.y);
+                position.set(position.x + 80 * deltaTime, target.y);
                 break;
         }
     }

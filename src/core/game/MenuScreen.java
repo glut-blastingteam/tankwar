@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class MenuScreen implements Screen {
@@ -21,10 +23,9 @@ public class MenuScreen implements Screen {
         camera.setToOrtho(false, Config.MAP_WIDTH, Config.MAP_HEIGHT);
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
-        //Button.ButtonStyle style = new Button.ButtonStyle();
-        startButton = new Button();
-        startButton.setPosition(Config.MAP_WIDTH / 2, Config.MAP_HEIGHT / 2 - 40);
-        stage.addActor(startButton);
+        Skin skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
+        startButton = new TextButton("Play game", skin);
+        startButton.setPosition(Config.MAP_WIDTH / 2, Config.MAP_HEIGHT / 2);
         startButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -32,13 +33,12 @@ public class MenuScreen implements Screen {
                 dispose();
             }
         });
-        System.out.println("done");
+        stage.addActor(startButton);
     }
 
 
     @Override
     public void render(float v) {
-        System.out.println("before");
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         camera.update();
         stage.act();

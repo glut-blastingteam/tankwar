@@ -2,6 +2,7 @@ package core.entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
@@ -29,34 +30,58 @@ public class TankEntity extends Actor {
         this.mapComponentStage = mapComponentStage;
         this.bulletStage = bulletStage;
         direction = Direction.DIRECTION_UP;
+        // 注意我们必须使用InputProcessor，Gdx.input.isKeyPressed会因为多次渲染而导致输入多次
+        Gdx.input.setInputProcessor(new InputAdapter() {
+            @Override
+            public boolean keyDown(int keycode) {
+                if (keycode == Input.Keys.SPACE) {
+                    addBulletIntoStage();
+                }
+                return true;
+            }
+        });
     }
 
     @Override
     public void act(float delta) {
         super.act(delta);
-        for (Actor a : bulletStage.getActors()) {
-            BulletEntity bullet = (BulletEntity) a;
-            // 如果子弹射中地图物体
-            if (isHitObject(bullet.position.x, bullet.position.y)) {
-                a.remove();
-                continue;
+        for (Actor b : bulletStage.getActors()) {
+            BulletEntity bullet = (BulletEntity) b;
+            // 如果子弹射中地图物体,则移除子弹和地图物体
+            MapEntity m = hitObject(bullet.position.x, bullet.position.y);
+            if (m != null) {
+                bullet.remove();
+                if (m.hitAndCheck()) {
+                    m.remove();
+                }
+                break;
             }
-            // 如果子弹位于地图范围内
-            if (((BulletEntity) a).position.y < ((BulletEntity) a).target.y ||
-                    ((BulletEntity) a).position.x < ((BulletEntity) a).target.x) {
-                ((BulletEntity) a).update(delta);
+            // 如果子弹位于地图范围内则更新子弹位置否则移除子弹
+            if (Math.abs(((BulletEntity) b).position.y - ((BulletEntity) b).target.y) > 0 ||
+                    Math.abs(((BulletEntity) b).position.x - ((BulletEntity) b).target.x) > 0) {
+                ((BulletEntity) b).update(delta);
             } else {
-                a.remove();
+                b.remove();
             }
         }
+    }
+
+    private MapEntity hitObject(float x, float y) {
+        for (Actor mapComponentActor : mapComponentStage.getActors()) {
+            MapEntity mapComponent = (MapEntity) mapComponentActor;
+            if (mapComponent.isCollision(x, y)) {
+                return mapComponent;
+            }
+        }
+        return null;
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
         for (Actor a : mapComponentStage.getActors()) {
-            if (a instanceof BaseEntity) {
-                BaseEntity b = (BaseEntity) a;
+            if (a instanceof MapEntity) {
+                MapEntity b = (MapEntity) a;
                 switch (direction) {
                     case DIRECTION_UP:
                         if (b.isCollision(x, y + tankHeight) || b.isCollision(x + tankWidth, y + tankHeight)) {
@@ -97,7 +122,6 @@ public class TankEntity extends Actor {
             }
         }
 
-
         //四方移动逻辑
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             direction = Direction.DIRECTION_UP;
@@ -119,25 +143,11 @@ public class TankEntity extends Actor {
             batch.draw(playerDirection[direction.ordinal()], x, y);
         }
         amendPositionWithinMap();
-
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            switch (direction) {
-                case DIRECTION_UP:
-                    bulletStage.addActor(new BulletEntity(
-                            Direction.DIRECTION_UP,
-                            new Vector2(x, y),
-                            new Vector2(x, Config.MAP_HEIGHT)));
-                    break;
-                case DIRECTION_DOWN:
-                    bulletStage.addActor(new BulletEntity(
-                            Direction.DIRECTION_DOWN,
-                            new Vector2(x, y),
-                            new Vector2(x, 0)));
-                    break;
-            }
-        }
     }
 
+    /**
+     * 修正无效移动
+     */
     private void amendPositionWithinMap() {
         if (x < 0) {
             x = 0;
@@ -153,19 +163,38 @@ public class TankEntity extends Actor {
         }
     }
 
-    private boolean isHitObject(float x, float y) {
-        for (Actor mapComponentActor : mapComponentStage.getActors()) {
-            BaseEntity mapComponent = (BaseEntity) mapComponentActor;
-            if (mapComponent.isCollision(x, y)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public void dispose() {
         for (Texture t : playerDirection) {
             t.dispose();
+        }
+    }
+
+    private void addBulletIntoStage() {
+        switch (direction) {
+            case DIRECTION_UP:
+                bulletStage.addActor(new BulletEntity(
+                        Direction.DIRECTION_UP,
+                        new Vector2(x + tankWidth / 2 - 8, y + tankHeight),
+                        new Vector2(x + tankWidth / 2 - 8, Config.MAP_HEIGHT)));
+                break;
+            case DIRECTION_DOWN:
+                bulletStage.addActor(new BulletEntity(
+                        Direction.DIRECTION_DOWN,
+                        new Vector2(x + tankWidth / 2 - 8, y),
+                        new Vector2(x + tankWidth / 2 - 8, 0)));
+                break;
+            case DIRECTION_LEFT:
+                bulletStage.addActor(new BulletEntity(
+                        Direction.DIRECTION_LEFT,
+                        new Vector2(x, y + tankHeight / 2 - 8),
+                        new Vector2(0, y + tankHeight / 2 - 8)));
+                break;
+            case DIRECTION_RIGHT:
+                bulletStage.addActor(new BulletEntity(
+                        Direction.DIRECTION_RIGHT,
+                        new Vector2(x + tankWidth, y + tankHeight / 2 - 8),
+                        new Vector2(Config.MAP_WIDTH, y + tankHeight / 2 - 8)));
+                break;
         }
     }
 

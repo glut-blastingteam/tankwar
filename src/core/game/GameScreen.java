@@ -33,7 +33,7 @@ public class GameScreen implements Screen {
         tankStage = new Stage();
         playerTank = new TankEntity(mapComponentStage, bulletStage);
         tankStage.addActor(playerTank);
-        MapGenerator.generateMap1(mapComponentStage, Config.MAP_WIDTH, Config.MAP_HEIGHT);
+        MapGenerator.generateMap1(game, mapComponentStage, Config.MAP_WIDTH, Config.MAP_HEIGHT);
     }
 
     @Override
