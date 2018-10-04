@@ -13,7 +13,8 @@
 + 资源释放
 
 # 小教程~
-> libgdx官方文档参见**https://github.com/libgdx/libgdx/wiki**,中文文档可以参见**https://blog.csdn.net/xietansheng/article/details/50185655**
+> libgdx官方文档参见**https://github.com/libgdx/libgdx/wiki**
+> 中文文档可以参见**https://blog.csdn.net/xietansheng/article/details/50185655**
 
 配置[lib](./lib)中的四个依赖jar，然后使用[启动器](src/desktop/DesktopLauncher.java)即可开始游戏~
 
