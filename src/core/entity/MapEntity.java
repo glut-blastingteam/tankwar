@@ -36,12 +36,19 @@ public class MapEntity extends Actor {
         return texture.getWidth();
     }
 
-    public boolean isCollision(float x, float y) {
+    boolean isCollided(float x, float y) {
         return (x >= this.x && x <= (this.x + getTextureWidth())) && (y >= this.y && y <= (this.y + getTextureHeight()));
     }
 
 
-    public boolean hitAndCheck() {
+    boolean hitAndCheck() {
         return --solidness == 0;
     }
+
+    public static class MapEntityType {
+        public static final int BRICK = 1;
+        public static final int STEEL = 4;
+        public static final int BOOS = 1;
+    }
+
 }

@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import core.game.Config;
+import core.util.Direction;
 
 public class TankEntity extends Actor {
     private Stage mapComponentStage, bulletStage;
@@ -30,7 +31,7 @@ public class TankEntity extends Actor {
         this.mapComponentStage = mapComponentStage;
         this.bulletStage = bulletStage;
         direction = Direction.DIRECTION_UP;
-        // 注意我们必须使用InputProcessor，Gdx.input.isKeyPressed会因为多次渲染而导致输入多次
+        // 注意必须使用InputProcessor，Gdx.input.isKeyPressed会因为快速渲染而导致输入多次
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
             public boolean keyDown(int keycode) {
@@ -64,91 +65,110 @@ public class TankEntity extends Actor {
                 b.remove();
             }
         }
+
+
+        //四方移动逻辑
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            direction = Direction.DIRECTION_UP;
+            if (isCollided(x, y + 200 * Gdx.graphics.getDeltaTime())) {
+                return;
+            }
+            y += 200 * Gdx.graphics.getDeltaTime();
+        } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            if (isCollided(x, y - 200 * Gdx.graphics.getDeltaTime())) {
+                return;
+            }
+            direction = Direction.DIRECTION_DOWN;
+            y -= 200 * Gdx.graphics.getDeltaTime();
+        } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            direction = Direction.DIRECTION_LEFT;
+            if (isCollided(x - 200 * Gdx.graphics.getDeltaTime(), y)) {
+                return;
+            }
+            x -= 200 * Gdx.graphics.getDeltaTime();
+        } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            direction = Direction.DIRECTION_RIGHT;
+            if (isCollided(x + 200 * Gdx.graphics.getDeltaTime(), y)) {
+                return;
+            }
+            x += 200 * Gdx.graphics.getDeltaTime();
+        }
+
+        ensureWithinMap();
     }
 
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
+        super.draw(batch, parentAlpha);
+
+        for (Actor b : bulletStage.getActors()) {
+            batch.draw(((BulletEntity) b).texture,
+                    ((BulletEntity) b).position.x, ((BulletEntity) b).position.y);
+
+        }
+        batch.draw(playerDirection[direction.ordinal()], x, y);
+    }
+
+    /**
+     * 碰撞检测
+     *
+     * @return 是否碰撞
+     */
+    private boolean isCollided(float x, float y) {
+        for (Actor a : mapComponentStage.getActors()) {
+            MapEntity b = (MapEntity) a;
+            switch (direction) {
+                case DIRECTION_UP:
+                    if (b.isCollided(x, y + tankHeight) || b.isCollided(x + tankWidth, y + tankHeight)) {
+                        ensureWithinMap();
+                        return true;
+                    }
+                    break;
+                case DIRECTION_DOWN: {
+                    if (b.isCollided(x, y) || b.isCollided(x + tankWidth, y)) {
+                        ensureWithinMap();
+                        return true;
+                    }
+                    break;
+                }
+                case DIRECTION_RIGHT:
+                    if (b.isCollided(x + tankWidth, y) || b.isCollided(x + tankWidth, y + tankHeight)) {
+                        ensureWithinMap();
+                        return true;
+                    }
+                    break;
+                case DIRECTION_LEFT:
+                    if (b.isCollided(x, y) || b.isCollided(x, y + tankHeight)) {
+                        ensureWithinMap();
+                        return true;
+                    }
+                    break;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 子弹是否射中地图物体
+     *
+     * @param x 子弹x
+     * @param y 子弹y
+     * @return 射中返回地图物体, 否则返回null
+     */
     private MapEntity hitObject(float x, float y) {
         for (Actor mapComponentActor : mapComponentStage.getActors()) {
             MapEntity mapComponent = (MapEntity) mapComponentActor;
-            if (mapComponent.isCollision(x, y)) {
+            if (mapComponent.isCollided(x, y)) {
                 return mapComponent;
             }
         }
         return null;
     }
 
-    @Override
-    public void draw(Batch batch, float parentAlpha) {
-        super.draw(batch, parentAlpha);
-        for (Actor a : mapComponentStage.getActors()) {
-            if (a instanceof MapEntity) {
-                MapEntity b = (MapEntity) a;
-                switch (direction) {
-                    case DIRECTION_UP:
-                        if (b.isCollision(x, y + tankHeight) || b.isCollision(x + tankWidth, y + tankHeight)) {
-                            y -= 1;
-                            amendPositionWithinMap();
-                            return;
-                        }
-                        break;
-                    case DIRECTION_DOWN: {
-                        if (b.isCollision(x, y) || b.isCollision(x + tankWidth, y)) {
-                            y += 1;
-                            amendPositionWithinMap();
-                            return;
-                        }
-                        break;
-                    }
-                    case DIRECTION_RIGHT:
-                        if (b.isCollision(x + tankWidth, y) || b.isCollision(x + tankWidth, y + tankHeight)) {
-                            x -= 1;
-                            amendPositionWithinMap();
-                            return;
-                        }
-                        break;
-                    case DIRECTION_LEFT:
-                        if (b.isCollision(x, y) || b.isCollision(x, y + tankHeight)) {
-                            x += 1;
-                            amendPositionWithinMap();
-                            return;
-                        }
-                        break;
-                }
-            }
-
-            for (Actor b : bulletStage.getActors()) {
-                batch.draw(((BulletEntity) b).texture,
-                        ((BulletEntity) b).position.x, ((BulletEntity) b).position.y);
-
-            }
-        }
-
-        //四方移动逻辑
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            direction = Direction.DIRECTION_UP;
-            batch.draw(playerDirection[0], x, y);
-            y += 200 * Gdx.graphics.getDeltaTime();
-        } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            direction = Direction.DIRECTION_DOWN;
-            batch.draw(playerDirection[1], x, y);
-            y -= 200 * Gdx.graphics.getDeltaTime();
-        } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            direction = Direction.DIRECTION_LEFT;
-            batch.draw(playerDirection[2], x, y);
-            x -= 200 * Gdx.graphics.getDeltaTime();
-        } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            direction = Direction.DIRECTION_RIGHT;
-            batch.draw(playerDirection[3], x, y);
-            x += 200 * Gdx.graphics.getDeltaTime();
-        } else {
-            batch.draw(playerDirection[direction.ordinal()], x, y);
-        }
-        amendPositionWithinMap();
-    }
-
     /**
-     * 修正无效移动
+     * 修正无效移动确保坦克在地图范围内
      */
-    private void amendPositionWithinMap() {
+    private void ensureWithinMap() {
         if (x < 0) {
             x = 0;
         }
@@ -163,12 +183,18 @@ public class TankEntity extends Actor {
         }
     }
 
+    /**
+     * 释放资源
+     */
     public void dispose() {
         for (Texture t : playerDirection) {
             t.dispose();
         }
     }
 
+    /**
+     * 创建子弹
+     */
     private void addBulletIntoStage() {
         switch (direction) {
             case DIRECTION_UP:
@@ -196,9 +222,5 @@ public class TankEntity extends Actor {
                         new Vector2(Config.MAP_WIDTH, y + tankHeight / 2 - 8)));
                 break;
         }
-    }
-
-    enum Direction {
-        DIRECTION_UP, DIRECTION_DOWN, DIRECTION_LEFT, DIRECTION_RIGHT
     }
 }

@@ -3,14 +3,15 @@ package core.entity;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import core.util.Direction;
 
 class BulletEntity extends Actor {
     Texture texture;
     Vector2 position;
     Vector2 target;
-    private TankEntity.Direction direction;
+    private Direction direction;
 
-    BulletEntity(TankEntity.Direction direction, Vector2 position, Vector2 target) {
+    BulletEntity(Direction direction, Vector2 position, Vector2 target) {
         this.position = position;
         this.target = target;
         this.direction = direction;
