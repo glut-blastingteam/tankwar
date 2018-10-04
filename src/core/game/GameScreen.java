@@ -4,15 +4,18 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import core.entity.TankEntity;
+import core.util.Config;
 import core.util.MapGenerator;
 import core.util.MusicPlayer;
 
 
 public class GameScreen implements Screen {
     private final TankWarGame game;
+    private volatile boolean gameOver;
 
     private OrthographicCamera camera;
     private SpriteBatch batch;
@@ -42,12 +45,22 @@ public class GameScreen implements Screen {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
-        mapComponentStage.act();
-        mapComponentStage.draw();
-        bulletStage.act();
-        bulletStage.draw();
-        tankStage.act();
-        tankStage.draw();
+        if (!gameOver) {
+            mapComponentStage.act();
+            mapComponentStage.draw();
+            bulletStage.act();
+            bulletStage.draw();
+            tankStage.act();
+            tankStage.draw();
+        } else {
+            batch.begin();
+            batch.draw(new Texture("over.gif"), Config.MAP_WIDTH / 2, Config.MAP_HEIGHT / 2);
+            batch.end();
+        }
+    }
+
+    public void notifyGameOver() {
+        gameOver = true;
     }
 
     @Override

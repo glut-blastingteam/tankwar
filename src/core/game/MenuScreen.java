@@ -10,15 +10,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import core.util.Config;
 
 public class MenuScreen implements Screen {
-    private final TankWarGame game;
     private OrthographicCamera camera;
     private Stage stage;
     private Button startButton;
 
     public MenuScreen(final TankWarGame game){
-        this.game = game;
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Config.MAP_WIDTH, Config.MAP_HEIGHT);
         stage = new Stage();

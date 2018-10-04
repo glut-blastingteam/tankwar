@@ -8,13 +8,13 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import core.game.Config;
+import core.util.Config;
 import core.util.Direction;
 
 public class TankEntity extends Actor {
     private Stage mapComponentStage, bulletStage;
-    private float x = 1200 / 2 - 64 - 64;
-    private float y = 20;
+    private float x = Config.INITIAL_PLAYER_X;
+    private float y = Config.INITIAL_PLAYER_Y;
     private Direction direction;
     private Texture[] playerDirection;
     private float tankWidth, tankHeight;
